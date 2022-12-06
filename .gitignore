@@ -1,0 +1,3 @@
+*.pyc
+day6/test_aoc.py
+day6/aoc_template.py

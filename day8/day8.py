@@ -14,41 +14,56 @@ def parse(puzzle_input):
     parsed_input = np.genfromtxt(StringIO(puzzle_input), 
                                  delimiter=1, autostrip=True,
                                  dtype=int)
-    logging.debug(parsed_input)
     return parsed_input
     
-def part1(parsed_data):
-    # logging.debug()
-    logging.debug(parsed_data.shape)
-    len_x, len_y = parsed_data.shape
+def part1(tree_array):
+    len_x, len_y = tree_array.shape
     # the -2 is to not double count the corners
     visible_trees = (len_x + len_y - 2) * 2  # edges
     for i in range(1, len_x - 1):
         for j in range(1, len_y - 1):
-            tree = parsed_data[i, j]
-            row = parsed_data[i,:]
-            col = parsed_data[:,j]
-            logging.debug(f'tree at {(i, j)} is {tree}')
-            logging.debug(f'Row maxes are :{np.amax(row[0:j])} & {np.amax(row[j+1:len_x])}')
-            logging.debug(f'Col maxes are :{np.amax(col[0:i])} & {np.amax(col[i+1:len_y])}')
-                          
+            tree = tree_array[i, j]
+            row = tree_array[i,:]
+            col = tree_array[:,j]                          
             if (tree > np.amax(row[0:j]) or
                 tree > np.amax(row[j+1:len_x]) or
                 tree > np.amax(col[0:i]) or
                 tree > np.amax(col[i+1:len_y])):
                 logging.debug(f'Tree is visible')
                 visible_trees += 1
-    return visible_trees   
-    
+    return visible_trees
 
-def part2(parsed_data):
-    """Solve part 2."""
+def get_visible_trees(tree_array, tree:int):
+    visible_trees = 1
+    for i in range(len(tree_array)):
+        if tree > tree_array[i] and i < len(tree_array) - 1:
+            visible_trees += 1
+        else:
+            break
+    return visible_trees
+
+def part2(tree_array):
+    len_x, len_y = tree_array.shape
+    # the -2 is to not double count the corners
+    max_scenic_score = 0
+    for i in range(1, len_x - 1):
+        for j in range(1, len_y - 1):
+            tree = tree_array[i, j]
+            row = tree_array[i,:]
+            col = tree_array[:,j]
+            n = get_visible_trees(col[i-1::-1], tree)
+            s = get_visible_trees(col[i+1:], tree)
+            e = get_visible_trees(row[j-1::-1], tree)
+            w = get_visible_trees(row[j+1:], tree)
+            if (tree_score := n * s * e * w) > max_scenic_score:
+                max_scenic_score = tree_score
+    return max_scenic_score
 
 def solve(data):
     """Solve the puzzle for the given input."""
-    parsed_data = parse(data)
-    solution1 = part1(parsed_data)
-    solution2 = part2(parsed_data)
+    tree_array = parse(data)
+    solution1 = part1(tree_array)
+    solution2 = part2(tree_array)
 
     return solution1, solution2
 

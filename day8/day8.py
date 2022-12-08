@@ -1,13 +1,6 @@
 from aocd import data
-import logging
 import numpy as np
 from io import StringIO
-
-
-logging.basicConfig(filename='day8.log', level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.disable(logging.CRITICAL)
-logging.info('Start of program')
 
 def parse(puzzle_input):
     """Parse input."""
@@ -17,19 +10,18 @@ def parse(puzzle_input):
     return parsed_input
     
 def part1(tree_array):
-    len_x, len_y = tree_array.shape
+    height, width = tree_array.shape
     # the -2 is to not double count the corners
-    visible_trees = (len_x + len_y - 2) * 2  # edges
-    for i in range(1, len_x - 1):
-        for j in range(1, len_y - 1):
+    visible_trees = (height + width - 2) * 2  # edges
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
             tree = tree_array[i, j]
             row = tree_array[i,:]
             col = tree_array[:,j]                          
             if (tree > np.amax(row[0:j]) or
-                tree > np.amax(row[j+1:len_x]) or
+                tree > np.amax(row[j+1:height]) or
                 tree > np.amax(col[0:i]) or
-                tree > np.amax(col[i+1:len_y])):
-                logging.debug(f'Tree is visible')
+                tree > np.amax(col[i+1:width])):
                 visible_trees += 1
     return visible_trees
 
@@ -43,11 +35,11 @@ def get_visible_trees(tree_array, tree:int):
     return visible_trees
 
 def part2(tree_array):
-    len_x, len_y = tree_array.shape
+    height, width = tree_array.shape
     # the -2 is to not double count the corners
     max_scenic_score = 0
-    for i in range(1, len_x - 1):
-        for j in range(1, len_y - 1):
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
             tree = tree_array[i, j]
             row = tree_array[i,:]
             col = tree_array[:,j]
@@ -55,8 +47,7 @@ def part2(tree_array):
             s = get_visible_trees(col[i+1:], tree)
             e = get_visible_trees(row[j-1::-1], tree)
             w = get_visible_trees(row[j+1:], tree)
-            if (tree_score := n * s * e * w) > max_scenic_score:
-                max_scenic_score = tree_score
+            max_scenic_score = max(max_scenic_score, (n*s*e*w))
     return max_scenic_score
 
 def solve(data):

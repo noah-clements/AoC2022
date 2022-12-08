@@ -23,9 +23,7 @@ def test_parse_example1(example1):
         {'dir': {},
          'file': {'b.txt': 14848514,
                   'c.dat': 8504156,},
-          'size':48381165}}
-
-    
+          'size':48381165}}    
     a_dir = {
         'dir': {},
         'file': {'f':29116,
@@ -50,22 +48,20 @@ def test_parse_example1(example1):
                  },
         'size': 24933642
         }
-    
     root_dir['/']['dir']['a'] = a_dir
     root_dir['/']['dir']['d'] = d_dir
-
     
     assert example1 == root_dir
 
-@pytest.mark.skip(reason="Not implemented")
+# @pytest.mark.skip(reason="Not implemented")
 def test_part1_example1(example1):
     """Test part 1 on example input."""
-    assert aoc.part1(example1) == ...
+    assert aoc.part1(example1) == 95437
 
-@pytest.mark.skip(reason="Not implemented")
+# @pytest.mark.skip(reason="Not implemented")
 def test_part2_example1(example1):
     """Test part 2 on example input."""
-    assert aoc.part2(example1) == ...
+    assert aoc.part2(example1) == 24933642 # size of directory 'd'
 
 @pytest.mark.skip(reason="Not implemented")
 def test_part2_example2(example2):

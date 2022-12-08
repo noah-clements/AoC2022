@@ -9,6 +9,8 @@ logging.basicConfig(filename='day7.log', level=logging.DEBUG,
 # logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
+MIN_SPACE = 30000000
+DISK_SIZE = 70000000
 
 def add_sub_directory():
     return {
@@ -17,16 +19,7 @@ def add_sub_directory():
         'size': 0
     }
 
-
 def parse(puzzle_input):
-    """Parse input.
-    Args:
-        puzzle_input (str): Puzzle input.
-    
-    Returns:
-        dict: file_sys.
-        
-    """
     dir_re = re.compile(r'\$ cd (.*)')
     file_re = re.compile(r'(\d+) (.*)')
     add_dir_re = re.compile(r'dir (.*)')
@@ -42,15 +35,9 @@ def parse(puzzle_input):
         if match:
             dir = match.group(1)
             if dir == '..':
-                # current_dir['size'] = sum([size for size in 
-                #                            [val['size'] for val in current_dir['dir'].values()]]) 
-                # current_dir['size'] += sum([size for size in current_dir['file'].values()])
                 current_dir = parent_dir.pop()
             elif dir == '/':
                 current_dir=file_sys[dir]
-            # else:
-            #     current_dir = current_dir['dir'][dir]
-            #     parent_dir.append(current_dir)
             continue
         match = file_re.match(line)
         if match:
@@ -70,24 +57,41 @@ def parse(puzzle_input):
             parent_dir[-1]['dir'][dir] = current_dir
             parent_dir.append(current_dir)
             continue
-    return file_sys
-            
+    return file_sys            
         
-        
-        
-        
+def sum_subdir_sizes(starting_dir:dict, search_size:int):
+    sub_dir_sum = 0    
+    for sub_dir in starting_dir['dir'].values():
+        if len(sub_dir) > 0:
+            sub_dir_sum += sum_subdir_sizes(sub_dir, search_size)
+        if sub_dir['size'] <= search_size:
+            logging.debug(f'Sum={sub_dir_sum}, adding {sub_dir["size"]}')
+            sub_dir_sum += sub_dir['size']
+    return sub_dir_sum            
 
-def part1(data):
-    """Solve part 1."""
+def part1(file_sys: dict):
+    search_size = 100000
+    starting_dir = file_sys['/']
+    return sum_subdir_sizes(starting_dir, search_size)
 
-def part2(data):
-    """Solve part 2."""
+def get_smallest_needed_subdir(starting_dir:dict, current_smallest:int, needed_space:int):
+    smallest_size = current_smallest
+    for sub_dir in starting_dir['dir'].values():
+        if len(sub_dir) > 0:
+            smallest_size = get_smallest_needed_subdir(sub_dir, smallest_size, needed_space)
+        if needed_space <= sub_dir['size'] < smallest_size:
+            logging.debug(f'current_smallest={smallest_size}, replacing with {sub_dir["size"]}')
+            smallest_size = sub_dir['size']
+    return smallest_size
 
-def solve(puzzle_input):
-    """Solve the puzzle for the given input."""
-    data = parse(puzzle_input)
-    solution1 = part1(data)
-    solution2 = part2(data)
-
-    return solution1, solution2
+def part2(file_sys: dict):
+    free_space = DISK_SIZE - file_sys['/']['size']
+    needed_space = MIN_SPACE - free_space
+    logging.debug(f'needed_space={needed_space}')
+    starting_dir = file_sys['/']
+    return get_smallest_needed_subdir(starting_dir, starting_dir['size'], needed_space)
+    
+file_sys = parse(data)
+print(f'part1: {part1(file_sys)}')
+print(f'part2: {part2(file_sys)}')
 

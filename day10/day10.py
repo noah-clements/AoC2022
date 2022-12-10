@@ -38,8 +38,40 @@ def part1(instructions:[]):
             regx += addx
     return strength_sum        
 
-def part2(parsed_data):
-    """Solve part 2."""
+def part2(instructions:[]):
+    regx = 1
+    addx_cycle = 2 
+    cycle = 0
+    crt_out = ''
+    instructions.reverse()
+    action = instructions.pop()
+    instr_num = 1
+    for i in range(6): # i is crt row
+        for j in range(40):  # j is crt position
+            # draw crt  before instruction
+            if abs(regx - j) <=1:
+                crt_out += '#'
+            else:
+                crt_out += '.' 
+
+            if action[0] == 'addx':  # take 2
+                cycle += 1
+                if cycle % addx_cycle == 0:
+                    regx += action[1]
+                    cycle = 0
+                    if len(instructions) > 0:
+                        action = instructions.pop()
+                    else: 
+                        break
+                    instr_num += 1
+            else:
+                if len(instructions) > 0:
+                    action = instructions.pop()
+                else: 
+                    break
+        crt_out += '\n'
+    print(crt_out)
+    return crt_out
 
 def solve(data):
     """Solve the puzzle for the given input."""

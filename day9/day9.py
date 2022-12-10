@@ -16,7 +16,7 @@ def parse(puzzle_input):
 
 def move(instructions:list, second:bool):
     h_loc = (0,0) # starting head location
-    body_loc = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),] 
+    body_loc = [(0,0) for _ in range(8)] 
     t_loc = (0,0) # tail location
     tail_positions = {t_loc}
     for instruction in instructions:

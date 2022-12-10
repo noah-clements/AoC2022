@@ -45,14 +45,11 @@ def part2(instructions:[]):
     crt_out = ''
     instructions.reverse()
     action = instructions.pop()
-    instr_num = 1
-    for i in range(6): # i is crt row
+    for _ in range(6): # i is crt row
         for j in range(40):  # j is crt position
             # draw crt  before instruction
-            if abs(regx - j) <=1:
-                crt_out += '#'
-            else:
-                crt_out += '.' 
+            #stole this from flowernal
+            crt_out += '🌕' if regx - 1 <= j <= regx + 1 else '🌑'
 
             if action[0] == 'addx':  # take 2
                 cycle += 1
@@ -63,14 +60,12 @@ def part2(instructions:[]):
                         action = instructions.pop()
                     else: 
                         break
-                    instr_num += 1
             else:
                 if len(instructions) > 0:
                     action = instructions.pop()
                 else: 
                     break
         crt_out += '\n'
-    print(crt_out)
     return crt_out
 
 def solve(data):

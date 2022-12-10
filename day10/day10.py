@@ -1,10 +1,10 @@
 from aocd import data
-import logging
+# import logging
 
-logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.disable(logging.CRITICAL)
-logging.info('Start of program')
+# logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
+#                     format='%(asctime)s - %(levelname)s - %(message)s')
+# # logging.disable(logging.CRITICAL)
+# logging.info('Start of program')
 
 def parse(puzzle_input):
     return [(line.split()[0], int(line.split()[1])) 
@@ -26,15 +26,8 @@ def part1(instructions:[]):
             cycle += addx_cycle
         else:
             cycle += 1
-        # These only differ in the order of measuring and adding
-        if cycle == next_measurement:
-            regx += addx
-            strength_sum += regx * next_measurement
-            if measurements:
-                next_measurement = measurements.pop()
-            else:
-                break
-        elif cycle > next_measurement: # we're in the middle of adding, can't include.
+
+        if cycle >= next_measurement: # we're in the middle of adding, can't include.
             strength_sum += regx * next_measurement
             regx += addx
             if measurements:

@@ -2,6 +2,9 @@ from aocd import data
 import logging
 import operator
 import re 
+import gc
+
+gc.disable()
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -10,22 +13,22 @@ logging.info('Start of program')
 
 ops = {
     '+' : operator.add,
-    '-' : operator.sub,
-    '*' : operator.mul,
-    '/' : operator.truediv,
-}
+    '*' : operator.mul
+    }
 
 class Monkey():
     def __init__(self, monkey_number:int, starting_items:list, operation:str, 
                  operand, devisor_test:int, true_monkey:int, false_monkey:int):
         self.number = monkey_number
-        self.items = starting_items
-        self.uncommitted_items = []
+        self.inspections = 0
+        self.item_worries = starting_items
         # operator suggested by ChatGPT, 
         # but it 'thought' I could use getattr()
         self.op = ops[operation]
+        self.operation = operation
         try:
             self.operand = int(operand)
+            self.old_op = False
         except:
             self.operand = operand
             self.old_op = True
@@ -34,33 +37,37 @@ class Monkey():
         self.false_monkey = false_monkey
 
     def __repr__(self) -> str:
-        return (f'Monkey({self.number}, {self.items}, ' +
+        return (f'Monkey({self.number}, {self.item_worries}, ' +
                 f'{next(key for key, value in ops.items() if value == self.op)}, '+
                 f'{self.operand}, {self.devisor}, ' +
                 f'{self.true_monkey}, {self.false_monkey})')
 
-    def operate(self):
-        for item in self.items:
-            operand = item if self.old_op else self.operand
-            item = self.op(item, operand)
-
-    def add_items(self, items:list):
-        self.uncommitted_items = items
-
-    def commit(self):
-        self.items = self.uncommitted_items
-        self.uncommitted_items = []
-
-    def reallocate(self):
+    def inspect_and_throw(self, divide_worry=1):
         true_items = []
         false_items = []
-        for item in self.items:
+        for item in self.item_worries:
+            self.inspections += 1
+            operand = item if self.old_op else self.operand
+            if self.operation == '+':
+                item += operand 
+            else: 
+                item *= operand
+            # hanging with more than 100 tries
+            # item = self.op(item, operand)
+            if divide_worry > 1:
+                item = item // divide_worry
             if item % self.devisor == 0:
                 true_items.append(item)
             else:
                 false_items.append(item)
-        self.items = []
-        return {self.true_monkey: true_items, self.false_monkey: false_items}
+        self.item_worries = []
+        return [(self.true_monkey, true_items), (self.false_monkey, false_items)]
+
+    def add_items(self, items):
+        self.item_worries = self.item_worries + items 
+
+    def get_inspections(self) -> int:
+        return self.inspections
 
 
 def parse(puzzle_input):
@@ -90,17 +97,29 @@ def parse(puzzle_input):
     return monkeys
 
 
-def part1(parsed_data):
-    """Solve part 1."""
+def watch_monkeys(monkeys:[Monkey], rounds:int=20, divide_worry:int=1):
+    for i in range(rounds):
+        if i % 100 == 0:
+            logging.debug(f'On loop {i}')
+        for monkey in monkeys:
+            reallocate = monkey.inspect_and_throw(divide_worry)
+            for item in reallocate: 
+                monkeys[item[0]].add_items(item[1])
+    inspections = [monkey.get_inspections() for monkey in monkeys]
+    inspections.sort(reverse=True)
+    return inspections[0] * inspections[1]
 
-def part2(parsed_data):
+def part2(monkeys:[Monkey]):
     """Solve part 2."""
 
 def solve(data):
     """Solve the puzzle for the given input."""
-    parsed_data = parse(data)
-    solution1 = part1(parsed_data)
-    solution2 = part2(parsed_data)
+    monkeys = parse(data)
+    logging.debug("about to start part 1")
+    solution1 = watch_monkeys(monkeys, divide_worry=3)
+    logging.debug("about to start part 2")
+    solution2 = watch_monkeys(monkeys, rounds=10000)
+    logging.debug("ended part 2")
 
     return solution1, solution2
 

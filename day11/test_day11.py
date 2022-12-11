@@ -25,15 +25,15 @@ def test_parse_example1(example1):
               Monkey(3, [74], '+', '3', 17, 0, 1),]
     assert repr(example1) == repr(monkeys)
 
-@pytest.mark.skip(reason="Not implemented")
+# @pytest.mark.skip(reason="Not implemented")
 def test_part1_example1(example1):
     """Test part 1 on example input."""
-    assert aoc.part1(example1) == ...
+    assert aoc.watch_monkeys(example1, divide_worry=3) == 10605
 
-@pytest.mark.skip(reason="Not implemented")
+# @pytest.mark.skip(reason="Not implemented")
 def test_part2_example1(example1):
     """Test part 2 on example input."""
-    assert aoc.part2(example1) == ...
+    assert aoc.watch_monkeys(example1, rounds=10000) == 2713310158
 
 @pytest.mark.skip(reason="Not implemented")
 def test_part2_example2(example2):

@@ -2,9 +2,7 @@ from aocd import data
 import logging
 import operator
 import re 
-import gc
 
-gc.disable()
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -16,12 +14,15 @@ ops = {
     '*' : operator.mul
     }
 
+lcm = 1
+
+
 class Monkey():
     def __init__(self, monkey_number:int, starting_items:list, operation:str, 
-                 operand, devisor_test:int, true_monkey:int, false_monkey:int):
+                 operand, divisor_test:int, true_monkey:int, false_monkey:int):
         self.number = monkey_number
         self.inspections = 0
-        self.item_worries = starting_items
+        self.item_worries = [int(item) for item in starting_items]
         # operator suggested by ChatGPT, 
         # but it 'thought' I could use getattr()
         self.op = ops[operation]
@@ -32,14 +33,14 @@ class Monkey():
         except:
             self.operand = operand
             self.old_op = True
-        self.devisor = devisor_test
+        self.divisor = divisor_test
         self.true_monkey = true_monkey
         self.false_monkey = false_monkey
 
     def __repr__(self) -> str:
         return (f'Monkey({self.number}, {self.item_worries}, ' +
                 f'{next(key for key, value in ops.items() if value == self.op)}, '+
-                f'{self.operand}, {self.devisor}, ' +
+                f'{self.operand}, {self.divisor}, ' +
                 f'{self.true_monkey}, {self.false_monkey})')
 
     def inspect_and_throw(self, divide_worry=1):
@@ -48,15 +49,11 @@ class Monkey():
         for item in self.item_worries:
             self.inspections += 1
             operand = item if self.old_op else self.operand
-            if self.operation == '+':
-                item += operand 
-            else: 
-                item *= operand
-            # hanging with more than 100 tries
-            # item = self.op(item, operand)
+            item = self.op(item, operand) % lcm
             if divide_worry > 1:
                 item = item // divide_worry
-            if item % self.devisor == 0:
+            #inspect 
+            if item % self.divisor == 0:  
                 true_items.append(item)
             else:
                 false_items.append(item)
@@ -77,6 +74,7 @@ def parse(puzzle_input):
     potential changes to the register items.
     Each 'Monkey' is separated from the others by \n\n
     """
+    global lcm
     prog = re.compile(r'Monkey (\d+):\s+Starting items: ((\d+(, )?)+)\s+'
                         r'Operation: new = old ([+-/*]) (\d+|old)\s+'
                         r'Test: divisible by (\d+)\s+'
@@ -88,19 +86,18 @@ def parse(puzzle_input):
         matches = prog.match(sect)
         if matches:
             monkeys.append(Monkey(int(matches.group(1)),
-                                  [int(item) for item in (matches.group(2).split(','))],
+                                  [item for item in (matches.group(2).split(','))],
                                   matches.group(5),
                                   matches.group(6),
                                   int(matches.group(7)),
                                   int(matches.group(8)),
                                   int(matches.group(9))))
+            lcm *= int(matches.group(7))
     return monkeys
 
 
-def watch_monkeys(monkeys:[Monkey], rounds:int=20, divide_worry:int=1):
+def watch_monkeys(monkeys:[Monkey], rounds:int, divide_worry:int=1):
     for i in range(rounds):
-        if i % 100 == 0:
-            logging.debug(f'On loop {i}')
         for monkey in monkeys:
             reallocate = monkey.inspect_and_throw(divide_worry)
             for item in reallocate: 
@@ -116,7 +113,7 @@ def solve(data):
     """Solve the puzzle for the given input."""
     monkeys = parse(data)
     logging.debug("about to start part 1")
-    solution1 = watch_monkeys(monkeys, divide_worry=3)
+    solution1 = watch_monkeys(monkeys, rounds=20, divide_worry=3)
     logging.debug("about to start part 2")
     solution2 = watch_monkeys(monkeys, rounds=10000)
     logging.debug("ended part 2")
@@ -124,5 +121,7 @@ def solve(data):
     return solution1, solution2
 
 if __name__ == "__main__":
+    # with open('input.txt') as f:
+    #     data = f.read().strip()
     solutions = solve(data)
     print("\n".join(str(solution) for solution in solutions))

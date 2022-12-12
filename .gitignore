@@ -3,3 +3,4 @@ day6/test_aoc.py
 day6/aoc_template.py
 .vscode/settings.json
 .DS_Store
+day11/input.txt

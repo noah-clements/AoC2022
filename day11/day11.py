@@ -49,7 +49,8 @@ class Monkey():
         for item in self.item_worries:
             self.inspections += 1
             operand = item if self.old_op else self.operand
-            item = self.op(item, operand) % lcm
+            item = self.op(item, operand)
+            item %= lcm 
             if divide_worry > 1:
                 item = item // divide_worry
             #inspect 

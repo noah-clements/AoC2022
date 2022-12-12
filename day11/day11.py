@@ -103,6 +103,8 @@ def watch_monkeys(monkeys:[Monkey], rounds:int, divide_worry:int=1):
             reallocate = monkey.inspect_and_throw(divide_worry)
             for item in reallocate: 
                 monkeys[item[0]].add_items(item[1])
+        if (i +1) <= 100:
+            logging.debug(f'Run {i +  1} {[monkey.get_inspections() for monkey in monkeys]}')
     inspections = [monkey.get_inspections() for monkey in monkeys]
     inspections.sort(reverse=True)
     return inspections[0] * inspections[1]
@@ -116,7 +118,8 @@ def solve(data):
     logging.debug("about to start part 1")
     solution1 = watch_monkeys(monkeys, rounds=20, divide_worry=3)
     logging.debug("about to start part 2")
-    solution2 = watch_monkeys(monkeys, rounds=10000)
+    monkeys = parse(data)
+    solution2 = watch_monkeys(monkeys, rounds=10_000)
     logging.debug("ended part 2")
 
     return solution1, solution2

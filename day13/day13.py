@@ -15,7 +15,7 @@ def build_list(level:ast.List):
             result_list.append(build_list(item))
         elif isinstance(item, ast.Constant):
             result_list.append(item.value)
-    logging.debug(f"in build_list: {result_list}")
+    # logging.debug(f"in build_list: {result_list}")
     return result_list
 
 def parse(puzzle_input):
@@ -24,38 +24,51 @@ def parse(puzzle_input):
              for line in pair.splitlines()] 
             for pair in puzzle_input.split('\n\n')]
 
-def in_order(left, right): 
+# can't just use bool because there is third option (equals)
+def order(left, right): 
     for i in range(len(left)):
         if i > len(right) - 1:
-            return False
+            return -1
         elif type(left[i]) == int:
             if type(right[i]) == int:
                 if left[i] > right[i]:
-                    return False
+                    logging.debug(f"Not in order: {left[i]}, {right[i]}")
+                    return -1
                 elif left[i] < right[i]:
-                    return True
+                    return 1
                 else:
                     continue
             else:
                 #convert int to list if necessary
-                if not in_order([left[i]], right[i]):
-                    return False
+                lr_order = order([left[i]], right[i])
+                if lr_order == 0:
+                    continue
+                else:
+                    return lr_order
         elif type(left[i]) == list:
             #convert int to list if necessary
             right_val = ([right[i]] if type(right[i]) == int
                          else right[i])
-            if not in_order(left[i], right_val):
-                return False
-    # even if the left & right were same length, 
-    # would still be in correct order.
-    return True
+            lr_order = order(left[i], right_val)
+            if lr_order == 0:
+                continue
+            else:
+                return lr_order
+    if len(left) < len(right):
+        logging.debug(f'Finished looping through left {left}, right has more {right}')
+        return 1
+    # if the left & right were same length, 0 == continue
+    return 0
 
 def part1(parsed_data):
     """Solve part 1."""
     sum_of_indices = 0
+    logging.debug(f'There are {len(parsed_data)} pairs')
     for i in range(len(parsed_data)):
         left, right = parsed_data[i] 
-        if in_order(left, right):
+        logging.debug(f'In pair: {i + 1}')
+        if order(left, right) > -1:
+            logging.debug(f'Pair: {i + 1} is in order')
             sum_of_indices += i + 1
     return sum_of_indices
         

@@ -15,24 +15,15 @@ def parse(puzzle_input):
     letter_vals = string.ascii_lowercase 
     return [[letter_vals.find(char) if char in letter_vals else char for char in line] for line in puzzle_input.splitlines()]
 
-def get_location(maze:list[list], char):
+def get_locations(maze:list[list], char):
+    locations = []
     for i in range(len(maze)):
         for j in range(len(maze[i])):
             if maze[i][j] == char:
-                return (i, j)
+                locations.append((i, j))
+    return locations
 
-
-def part2(topo):
-    """Solve part 2."""
-
-def part1(grid):
-    starting_loc = get_location(grid, 'S')
-    destination = get_location(grid, 'E')
-    # now replace the 'S' & 'E' characters with their values
-    x,y = starting_loc
-    grid[x][y] = 0
-    x,y = destination
-    grid[x][y] = 25
+def bfs_shortest_distance(grid, starting_loc, destination):
     queue = deque(((starting_loc, 0),))
     shortest_visited = {}
     shortest_path_length = float('inf')
@@ -53,6 +44,20 @@ def part1(grid):
                     # also add the neighbor to the queue
                     queue.append(((nx, ny), next_steps))
     return shortest_path_length
+
+
+def part2(topo):
+    """Solve part 2."""
+
+def part1(grid):
+    starting_loc = get_locations(grid, 'S')[0]
+    destination = get_locations(grid, 'E')[0]
+    # now replace the 'S' & 'E' characters with their values
+    x,y = starting_loc
+    grid[x][y] = 0
+    x,y = destination
+    grid[x][y] = 25
+    return bfs_shortest_distance(grid, starting_loc, destination)
     
 
 def solve(data):
@@ -68,41 +73,3 @@ def solve(data):
 if __name__ == "__main__":
     solutions = solve(data)
     print("\n".join(str(solution) for solution in solutions))
-
-        # direction = np.sign(np.subtract(destination, current_loc))
-        # direction[0] != 0 this test is not productive
-
-
-        # if (topo[ch + direction[0]][cw] <= topo[ch][cw]+1 
-        #     and (ch + direction[0], cw) not in no_gos
-        #     and (ch + direction[0], cw) != current_loc):
-        #     path.append(current_loc)
-        #     current_loc = (ch + direction[0], cw)
-        # elif (topo[ch][cw + direction[1]] <= topo[ch][cw]+1
-        #       and (ch, cw + direction[1]) not in no_gos
-        #       and (ch, cw + direction[1])!= current_loc):
-        #     path.append(current_loc)
-        #     current_loc = (ch, cw + direction[1])            # path = fix_wandering(path, current_loc)
-
-        # if (len(topo) > ch + 1
-        #       and topo[ch + 1][cw] == current_val + 1 
-        #       and (ch + 1, cw) not in no_gos
-        #       and (ch + 1, cw) not in path):
-        #     path.append(current_loc)
-        #     current_loc = (ch + 1, cw)
-        # elif (ch > 0 and topo[ch - 1][cw] == current_val + 1   
-        #       and (ch - 1, cw) not in no_gos
-        #       and (ch - 1, cw) not in path):
-        #     path.append(current_loc)
-        #     current_loc = (ch -1, cw)
-        # elif (len(topo[ch]) > cw + 1
-        #       and topo[ch][cw + 1] == current_val + 1  
-        #       and (ch, cw + 1) not in no_gos
-        #       and (ch, cw + 1) not in path):
-        #     path.append(current_loc)
-        #     current_loc = (ch, cw +1)
-        # elif (cw > 0 and topo[ch][cw - 1] == current_val + 1 
-        #       and (ch, cw - 1) not in no_gos
-        #       and (ch, cw - 1) not in path):
-        #     path.append(current_loc)
-        #     current_loc = (ch, cw - 1)

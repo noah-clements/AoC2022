@@ -45,7 +45,7 @@ def test_parse_example1(example1):
          [1,[2,[3,[4,[5,6,0]]]],8,9]]
     ]
 
-@pytest.mark.skip(reason="Not implemented")
+# @pytest.mark.skip(reason="Not implemented")
 def test_part1_example1(example1):
     """Test part 1 on example input."""
     assert aoc.part1(example1) == 13

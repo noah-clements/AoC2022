@@ -46,8 +46,20 @@ def bfs_shortest_distance(grid, starting_loc, destination):
     return shortest_path_length
 
 
-def part2(topo):
-    """Solve part 2."""
+def part2(grid):
+    starting_loc = get_locations(grid, 'S')[0]
+    destination = get_locations(grid, 'E')[0]
+    # now replace the 'S' & 'E' characters with their values
+    x,y = starting_loc
+    grid[x][y] = 0
+    x,y = destination
+    grid[x][y] = 25
+    shortest_path_length = float('inf')
+    possible_starts = get_locations(grid, 0)
+    for start in possible_starts:
+        shortest_path_length = min(shortest_path_length, bfs_shortest_distance(grid, start, destination))
+    return shortest_path_length
+
 
 def part1(grid):
     starting_loc = get_locations(grid, 'S')[0]
@@ -66,6 +78,7 @@ def solve(data):
     for line in topography:
         logging.debug(line)
     solution1 = part1(topography)
+    topography = parse(data)
     solution2 = part2(topography)
 
     return solution1, solution2

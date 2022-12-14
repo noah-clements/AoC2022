@@ -70,6 +70,8 @@ def part2(parsed_data):
 
 def solve(data):
     """Solve the puzzle for the given input."""
+    # with open('input.txt') as f:
+    #     puzzle_input = f.read().strip()
     parsed_data = parse(data)
     solution1 = part1(parsed_data)
     solution2 = part2(parsed_data)

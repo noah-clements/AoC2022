@@ -5,7 +5,7 @@ from collections import deque
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
 def build_list(level:ast.List):
@@ -91,9 +91,7 @@ def merge_sort(messages):
             else:
                 sorted_list.append(sorted_right[q])
                 q += 1
-        # We ran out of elements either in left_copy or right_copy
-        # so we will go through the remaining elements and add them
-        # to the sorted list
+        # We ran out of elements either in left or right, so add remaining.
         while p < left_size:
             sorted_list.append(sorted_left[p])
             p += 1
@@ -109,9 +107,7 @@ def part2(parsed_data):
     flattened.extend([[[2]],[[6]]])
     sorted_messages = merge_sort(flattened)
     logging.debug(f'After merge_sort: ')
-    # print(f'After merge_sort:')
     for message in sorted_messages:
-        # print(message)
         logging.debug(message)
     return (sorted_messages.index([[2]])+1) * (sorted_messages.index([[6]])+1)
     
@@ -120,8 +116,6 @@ def solve(data):
     """Solve the puzzle for the given input."""
     parsed_data = parse(data)
     solution1 = part1(parsed_data)
-    # reload - as in pytest, this parsed data is a fixture
-    # parsed_data = parse(data)
     solution2 = part2(parsed_data)
 
     return solution1, solution2

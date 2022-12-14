@@ -1,27 +1,15 @@
 from aocd import data
 import logging
-import ast
-from collections import deque
+
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
-def build_list(level:ast.List):
-    result_list = []
-    for item in level.elts:
-        if isinstance(item, ast.List):
-            result_list.append(build_list(item))
-        elif isinstance(item, ast.Constant):
-            result_list.append(item.value)
-    # logging.debug(f"in build_list: {result_list}")
-    return result_list
-
 def parse(puzzle_input):
-    """Parse input."""
-    return [[build_list(ast.parse(line, mode='eval').body) 
-             for line in pair.splitlines()] 
+    # ast.literal_eval() is supposed to be more safe, but this is ok for aoc
+    return [[eval(line) for line in pair.splitlines()] 
             for pair in puzzle_input.split('\n\n')]
 
 # can't just use bool because there is third option (equals)

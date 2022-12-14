@@ -1,5 +1,6 @@
 from aocd import data
 import logging
+from functools import cmp_to_key
 
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
@@ -16,14 +17,14 @@ def parse(puzzle_input):
 def order(left, right): 
     for i in range(len(left)):
         if i > len(right) - 1:
-            return -1
+            return 1
         elif type(left[i]) == int:
             if type(right[i]) == int:
                 if left[i] > right[i]:
                     logging.debug(f"Not in order: {left[i]}, {right[i]}")
-                    return -1
-                elif left[i] < right[i]:
                     return 1
+                elif left[i] < right[i]:
+                    return - 1
                 else:
                     continue
             else:
@@ -44,7 +45,7 @@ def order(left, right):
                 return lr_order
     if len(left) < len(right):
         logging.debug(f'Finished looping through left {left}, right has more {right}')
-        return 1
+        return -1
     # if the left & right were same length, 0 == continue
     return 0
 
@@ -54,51 +55,17 @@ def part1(parsed_data):
     for i in range(len(parsed_data)):
         left, right = parsed_data[i] 
         logging.debug(f'In pair: {i + 1}')
-        if order(left, right) > -1:
+        if order(left, right) < 1:
             logging.debug(f'Pair: {i + 1} is in order')
             sum_of_indices += i + 1
     return sum_of_indices
-        
-def merge_sort(messages):
-    sorted_list = []
-    size = len(messages)
-    if size > 1:
-        mid = size // 2
-        left = messages[:mid]
-        right = messages[mid:]
-        sorted_left = merge_sort(left)
-        sorted_right = merge_sort(right)
-        left_size = len(left)
-        right_size = len(right)
-        p=0
-        q=0
-        while p < left_size and q < right_size:
-            if order(sorted_left[p], sorted_right[q]) > -1:
-                sorted_list.append(sorted_left[p])
-                p += 1
-            else:
-                sorted_list.append(sorted_right[q])
-                q += 1
-        # We ran out of elements either in left or right, so add remaining.
-        while p < left_size:
-            sorted_list.append(sorted_left[p])
-            p += 1
-        while q < right_size:
-            sorted_list.append(sorted_right[q])
-            q += 1  
-    else:
-        sorted_list = messages
-    return sorted_list
+
 
 def part2(parsed_data):
     flattened = [message for pair in parsed_data for message in pair]
     flattened.extend([[[2]],[[6]]])
-    sorted_messages = merge_sort(flattened)
-    logging.debug(f'After merge_sort: ')
-    for message in sorted_messages:
-        logging.debug(message)
-    return (sorted_messages.index([[2]])+1) * (sorted_messages.index([[6]])+1)
-    
+    flattened.sort(key=cmp_to_key(order))
+    return (flattened.index([[2]])+1) * (flattened.index([[6]])+1)
 
 def solve(data):
     """Solve the puzzle for the given input."""

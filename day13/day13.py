@@ -1,6 +1,7 @@
 from aocd import data
 import logging
 from functools import cmp_to_key
+from ast import literal_eval
 
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
@@ -9,8 +10,8 @@ logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
 def parse(puzzle_input):
-    # ast.literal_eval() is supposed to be more safe, but this is ok for aoc
-    return [[eval(line) for line in pair.splitlines()] 
+    # ast.literal_eval() is "more safe", but eval is ok for aoc
+    return [[literal_eval(line) for line in pair.splitlines()] 
             for pair in puzzle_input.split('\n\n')]
 
 # can't just use bool because there is third option (equals)

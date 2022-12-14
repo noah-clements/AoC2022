@@ -1,13 +1,11 @@
 from aocd import data
 import logging
 import string
-# import numpy as np
-import math
 from collections import deque
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
 def parse(puzzle_input):

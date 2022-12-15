@@ -28,9 +28,6 @@ def parse(puzzle_input):
     logging.debug(f'max x = {max(rocks.keys())}; min x = {min(rocks.keys())}')
     return rocks
 
-            
-    
-
 def fill_sand(cavern:dict, part2=False):
     more_sand = True
     max_y = max(cavern.keys(), key=operator.itemgetter(1))[1]
@@ -62,9 +59,6 @@ def fill_sand(cavern:dict, part2=False):
                 more_sand = False
     logging.debug(f'Ending sand positions: {sorted([key for key in cavern.keys() if cavern[key] == "s"])}')
     return len([key for key in cavern.keys() if cavern[key] == "s"])
-
-def part2(parsed_data):
-    """Solve part 2."""
 
 def solve(data):
     """Solve the puzzle for the given input."""

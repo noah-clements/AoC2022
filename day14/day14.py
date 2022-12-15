@@ -33,13 +33,13 @@ def parse(puzzle_input):
 
 def fill_sand(cavern:dict, part2=False):
     more_sand = True
-    sand_count = 0
     max_y = max(cavern.keys(), key=operator.itemgetter(1))[1]
     if part2:
         max_y += 2
     print(f'max_y: {max_y}')
+    start_pos =  (500,0)
     while more_sand:
-        sand_pos = (500,0)  # always start here
+        sand_pos = start_pos  # always start here
         at_rest = False
         while not at_rest:
             test_pos = tuple(np.add(sand_pos, [0,1]))
@@ -49,20 +49,19 @@ def fill_sand(cavern:dict, part2=False):
                     test_pos = tuple(np.add(sand_pos, [1,1]))
                     if test_pos in cavern:
                         cavern[sand_pos] = 's'
-                        sand_count += 1
                         at_rest = True
-            #         else:
-            #             cavern[test_pos] = 's'
-            #             at_rest = True
-            #     else:
-            #         cavern[test_pos] ='s'
-            #         at_rest = True
-            # else:
+                        if sand_pos == start_pos:
+                            more_sand = False
             sand_pos = test_pos
-            if sand_pos[1] > max_y:
+            if part2: 
+                if sand_pos[1] == max_y - 1:
+                    cavern[sand_pos] = 's'
+                    at_rest = True
+            elif sand_pos[1] > max_y:
                 at_rest = True
                 more_sand = False
-    return sand_count
+    logging.debug(f'Ending sand positions: {sorted([key for key in cavern.keys() if cavern[key] == "s"])}')
+    return len([key for key in cavern.keys() if cavern[key] == "s"])
 
 def part2(parsed_data):
     """Solve part 2."""
@@ -71,6 +70,8 @@ def solve(data):
     """Solve the puzzle for the given input."""
     parsed_data = parse(data)
     solution1 = fill_sand(parsed_data)
+    # Turns out that I don't need to reset the data, as pt 2 just adds on
+    # parsed_data = parse(data)
     solution2 = fill_sand(parsed_data, part2=True)
 
     return solution1, solution2

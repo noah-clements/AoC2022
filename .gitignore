@@ -1,6 +1,7 @@
 *.pyc
-day6/test_aoc.py
-day6/aoc_template.py
+
 .vscode/settings.json
 .DS_Store
 day11/input.txt
+aoc_template.py
+test_aoc.py

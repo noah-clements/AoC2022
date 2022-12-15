@@ -5,9 +5,23 @@ import operator
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.info('Start of program')
 
+from functools import wraps
+from time import time
+def measure(func):
+    @wraps(func)
+    def _time_it(*args, **kwargs):
+        start = int(round(time() * 1000))
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_ = int(round(time() * 1000)) - start
+            print(f"Total execution time: {end_ if end_ > 0 else 0} ms")
+    return _time_it
+
+@measure
 def parse(puzzle_input):
     path_points = [[tuple(int(item) for item in point.strip().split(',')) for point in line.split('->')] for line in puzzle_input.splitlines()]
     logging.debug(path_points)
@@ -28,22 +42,24 @@ def parse(puzzle_input):
     logging.debug(f'max x = {max(rocks.keys())}; min x = {min(rocks.keys())}')
     return rocks
 
+@measure
 def fill_sand(cavern:dict, part2=False):
     more_sand = True
     max_y = max(cavern.keys(), key=operator.itemgetter(1))[1]
     if part2:
         max_y += 2
-    print(f'max_y: {max_y}')
+    print(f'part? {1 if not part2 else 2} max_y: {max_y}')
     start_pos =  (500,0)
     while more_sand:
         sand_pos = start_pos  # always start here
         at_rest = False
         while not at_rest:
-            test_pos = tuple(np.add(sand_pos, [0,1]))
+            x, y = sand_pos
+            test_pos = (x, y+1)
             if test_pos in cavern:
-                test_pos = tuple(np.add(sand_pos, [-1,1]))
+                test_pos = (x-1, y+1)
                 if test_pos in cavern:
-                    test_pos = tuple(np.add(sand_pos, [1,1]))
+                    test_pos = (x+1, y+1)
                     if test_pos in cavern:
                         cavern[sand_pos] = 's'
                         at_rest = True

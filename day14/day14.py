@@ -1,6 +1,7 @@
 from aocd import data
 import logging
 import numpy as np
+import operator
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -8,13 +9,60 @@ logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
 logging.info('Start of program')
 
 def parse(puzzle_input):
-    # logging.debug([[tuple(point.strip().split(',')) for point in line.split('->')] for line in puzzle_input.splitlines()])
-    path_points = [[tuple(point.strip().split(',')) for point in line.split('->')] for line in puzzle_input.splitlines()]
+    path_points = [[tuple(int(item) for item in point.strip().split(',')) for point in line.split('->')] for line in puzzle_input.splitlines()]
     logging.debug(path_points)
+    rocks = {}
+    for path in path_points:
+        rocks[path[0]] = 'r'
+        for i in range(1, len(path)):
+            rocks[path[i]] = 'r'
+            vector = np.subtract(path[i], path[i-1])
+            direction = np.sign(vector)
+            current_rock = path[i-1]
+            while current_rock != path[i]:
+                rocks[current_rock] = 'r'
+                current_rock = tuple(np.add(current_rock, direction))
+    logging.debug(rocks)
+    logging.debug(f'max y = {max(rocks.keys(), key=operator.itemgetter(1))}')
+    logging.debug(f'min y = {min(rocks.keys(), key=operator.itemgetter(1))}')
+    logging.debug(f'max x = {max(rocks.keys())}; min x = {min(rocks.keys())}')
+    return rocks
+
+            
     
 
-def part1(parsed_data):
-    """Solve part 1."""
+def fill_sand(cavern:dict, part2=False):
+    more_sand = True
+    sand_count = 0
+    max_y = max(cavern.keys(), key=operator.itemgetter(1))[1]
+    if part2:
+        max_y += 2
+    print(f'max_y: {max_y}')
+    while more_sand:
+        sand_pos = (500,0)  # always start here
+        at_rest = False
+        while not at_rest:
+            test_pos = tuple(np.add(sand_pos, [0,1]))
+            if test_pos in cavern:
+                test_pos = tuple(np.add(sand_pos, [-1,1]))
+                if test_pos in cavern:
+                    test_pos = tuple(np.add(sand_pos, [1,1]))
+                    if test_pos in cavern:
+                        cavern[sand_pos] = 's'
+                        sand_count += 1
+                        at_rest = True
+            #         else:
+            #             cavern[test_pos] = 's'
+            #             at_rest = True
+            #     else:
+            #         cavern[test_pos] ='s'
+            #         at_rest = True
+            # else:
+            sand_pos = test_pos
+            if sand_pos[1] > max_y:
+                at_rest = True
+                more_sand = False
+    return sand_count
 
 def part2(parsed_data):
     """Solve part 2."""
@@ -22,10 +70,8 @@ def part2(parsed_data):
 def solve(data):
     """Solve the puzzle for the given input."""
     parsed_data = parse(data)
-    solution1 = part1(parsed_data)
-    # reload - as in pytest, this parsed data is a fixture
-    parsed_data = parse(data)
-    solution2 = part2(parsed_data)
+    solution1 = fill_sand(parsed_data)
+    solution2 = fill_sand(parsed_data, part2=True)
 
     return solution1, solution2
 

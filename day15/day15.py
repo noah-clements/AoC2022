@@ -34,17 +34,30 @@ def parse(puzzle_input):
             sx, sy = int(match.group(1)), int(match.group(2))
             bx, by = int(match.group(3)), int(match.group(4))
             sensor_distances[sx, sy] = abs(sx -bx) + abs(sy - by)
-            try:
-                beacons[bx, by].append((sx, sy))
-            except KeyError:
-                beacons[bx, by] = [(sx, sy)]
+            beacons[sx, sy] = bx, by
+            # try:
+            #     beacons[bx, by].append((sx, sy))
+            # except KeyError:
+            #     beacons[bx, by] = [(sx, sy)]
     logging.debug(sensor_distances)
     logging.debug(beacons)
     return sensor_distances, beacons
 
 @measure
-def part1(parsed_data):
+def part1(parsed_data, row):
     """Solve part 1."""
+    not_there=set()
+    beacon_x = set()
+    sensor_distance, beacons = parsed_data
+    for point, val in sensor_distance.items():
+        sx, sy = point
+        bx, by = beacons[sx, sy]
+        if by == row:
+            beacon_x.add(bx)
+        if (window := val - abs(row- sy)) >= 0:
+            not_there.update([x for x in range(sx-window, sx+window+1)])
+    not_there.difference_update(beacon_x)
+    return len(not_there)
 
 @measure
 def part2(parsed_data):
@@ -53,7 +66,7 @@ def part2(parsed_data):
 def solve(data):
     """Solve the puzzle for the given input."""
     parsed_data = parse(data)
-    solution1 = part1(parsed_data)
+    solution1 = part1(parsed_data, 2_000_000)
     # reload - as in pytest, this parsed data is a fixture
     # parsed_data = parse(data)
     solution2 = part2(parsed_data)

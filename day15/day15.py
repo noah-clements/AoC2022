@@ -3,6 +3,7 @@ import logging
 from functools import wraps
 from time import time
 import re
+from sympy import RegularPolygon, Point
 
 def measure(func):
     @wraps(func)
@@ -40,7 +41,7 @@ def parse(puzzle_input):
             # except KeyError:
             #     beacons[bx, by] = [(sx, sy)]
     logging.debug(sensor_distances)
-    logging.debug(beacons)
+    # logging.debug(beacons)
     return sensor_distances, beacons
 
 @measure
@@ -60,8 +61,38 @@ def part1(parsed_data, row):
     return len(not_there)
 
 @measure
-def part2(parsed_data):
-    """Solve part 2."""
+def part2(parsed_data, max_value):
+    x_mult = 4_000_000
+    sensor_distance, _ = parsed_data
+    checked_points = set()
+    for point, val in sensor_distance.items():
+        # boundaries.append(RegularPolygon(Point(point), val, 4))
+        sx, sy = point
+        for side in range(4):
+            for i in range(val+1):
+                if side == 0:
+                    cx = sx + val + 1 - i
+                    cy = sy + i
+                elif side == 1:
+                    cx = sx - i
+                    cy = sy + val + 1 - i
+                elif side == 2:
+                    cx = sx - val - 1 + i
+                    cy = sy - i
+                else:               # side == 3
+                    cx = sx + i
+                    cy = sy - val - 1 + i
+                if (0 <= cx <= max_value and 0 <= cy <= max_value
+                    and (cx, cy) not in checked_points):
+                    found = all((abs(cx - otherx) + abs(cy - othery)) > other_distance 
+                                for (otherx, othery), other_distance in sensor_distance.items())
+                if found:
+                    return x_mult * cx + cy
+                else:
+                    checked_points.add((cx, cy))
+                    
+    logging.debug(f'Checked locations: {checked_points}')
+            
 
 def solve(data):
     """Solve the puzzle for the given input."""
@@ -69,7 +100,7 @@ def solve(data):
     solution1 = part1(parsed_data, 2_000_000)
     # reload - as in pytest, this parsed data is a fixture
     # parsed_data = parse(data)
-    solution2 = part2(parsed_data)
+    solution2 = part2(parsed_data, 4_000_000)
 
     return solution1, solution2
 

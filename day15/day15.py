@@ -3,7 +3,6 @@ import logging
 from functools import wraps
 from time import time
 import re
-from sympy import RegularPolygon, Point
 
 def measure(func):
     @wraps(func)
@@ -36,10 +35,6 @@ def parse(puzzle_input):
             bx, by = int(match.group(3)), int(match.group(4))
             sensor_distances[sx, sy] = abs(sx -bx) + abs(sy - by)
             beacons[sx, sy] = bx, by
-            # try:
-            #     beacons[bx, by].append((sx, sy))
-            # except KeyError:
-            #     beacons[bx, by] = [(sx, sy)]
     logging.debug(sensor_distances)
     # logging.debug(beacons)
     return sensor_distances, beacons
@@ -66,7 +61,6 @@ def part2(parsed_data, max_value):
     sensor_distance, _ = parsed_data
     checked_points = set()
     for point, val in sensor_distance.items():
-        # boundaries.append(RegularPolygon(Point(point), val, 4))
         sx, sy = point
         for side in range(4):
             for i in range(val+1):

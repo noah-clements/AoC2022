@@ -26,7 +26,6 @@ class Valve():
         self.flow_rate = flow_rate
         self.connections = connections
 
-    # @recursive_repr()
     def __repr__(self) -> str:
         return f"Valve('{self.name}', {self.flow_rate}, {self.connections})"
 
@@ -34,18 +33,6 @@ class Valve():
         return (self.name == __o.name 
                 and self.flow_rate == __o.flow_rate 
                 and self.connections == __o.connections)
-
-    def __lt__(self, __o: object) -> bool:
-        return self.flow_rate < __o.flow_rate
-
-    def __le__(self, __o: object) -> bool:
-        return self.flow_rate <= __o.flow_rate
-
-    def __gt__(self, __o: object) -> bool:
-        return self.flow_rate > __o.flow_rate
-
-    def __ge__(self, __o: object) -> bool:
-        return self.flow_rate >= __o.flow_rate
 
 
 @measure

@@ -5,3 +5,8 @@
 day11/input.txt
 aoc_template.py
 test_aoc.py
+day16/j16.py
+pytest.ini
+.vscode/launch.json
+aoc.log
+test.log

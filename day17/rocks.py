@@ -4,11 +4,10 @@ import logging
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.disable(logging.CRITICAL)
-logging.info('Start of program')
 
 class Rock(ABC):
-    MAX_X=7
-    MIN_X=0
+    RWALL_X=8
+    LWALL_X=0
     MIN_Y=0
 
     _cavern = {}
@@ -28,17 +27,23 @@ class Rock(ABC):
             if (test_pos in self._cavern 
                 or not room_to_fall
                 or not y-1 > Rock.MIN_Y):
-                self._cavern[position] = 'r'
+                # self._cavern[position] = 'r'
                 room_to_fall = False
+                top_y = max(top_y, y)
             else:
                 replacement_positions.append(test_pos)
-            top_y = max(top_y, y-1)
+                top_y = max(top_y, y-1)
         if room_to_fall:
             self._rock_positions = replacement_positions
-        logging.debug(f'Fell. {type(self)}. {self._rock_positions}')
-        logging.debug(f'Still falling? {room_to_fall}')
-        if not room_to_fall:
-            logging.debug(self._cavern)
+        else:
+            # Have to do this after the tests above and after top_y calc.
+            for position in self._rock_positions:
+                self._cavern[position] = 'r'
+        # logging.debug(f'Fell. {type(self)}. {self._rock_positions}')
+        # logging.debug(f'Still falling? {room_to_fall}')
+        # if not room_to_fall:
+        #     logging.debug(self._cavern)
+        #     logging.debug(f'Top _y: {top_y}')
         return room_to_fall, top_y            
 
     def move_left(self):
@@ -47,14 +52,14 @@ class Rock(ABC):
         for position in self._rock_positions:
             x, y = position
             test_pos = (x-1, y)
-            if not x-1 > Rock.MIN_X or test_pos in self._cavern:
+            if not x-1 > Rock.LWALL_X or test_pos in self._cavern:
                 more_room = False
                 break
             else:
-                replacement_positions.append((x-1, y))
+                replacement_positions.append(test_pos)
         if more_room:
             self._rock_positions = replacement_positions
-        logging.debug(f'Moved Left(?) {type(self)}. {self._rock_positions}')
+        # logging.debug(f'Moved Left(?) {type(self)}. {self._rock_positions}')
 
 
     def move_right(self):
@@ -63,21 +68,26 @@ class Rock(ABC):
         for position in self._rock_positions:
             x, y = position
             test_pos = (x+1, y)
-            if not x+1 < Rock.MAX_X or test_pos in self._cavern:
+            if not x+1 < Rock.RWALL_X or test_pos in self._cavern:
                 more_room = False
                 break
             else:
-                replacement_positions.append((x+1, y))
+                replacement_positions.append(test_pos)
         if more_room:
             self._rock_positions = replacement_positions
-        logging.debug(f'Moved Right(?) {type(self)}. {self._rock_positions}')
+        # logging.debug(f'Moved Right(?) {type(self)}. {self._rock_positions}')
+
+    @classmethod
+    def reset_cavern(cls):
+        cls._cavern = {}
+        
 
 
 class HorizontalRock(Rock):
     '''####'''
     def __init__(self, current_y):
         super().__init__(current_y)
-        self._rock_positions = [(i, self._bottom_y) for i in range(2,6)]
+        self._rock_positions = [(i, self._bottom_y) for i in range(3,7)]
         
 
 class CrossRock(Rock):
@@ -86,11 +96,11 @@ class CrossRock(Rock):
         .#.'''
     def __init__(self, current_y):
         super().__init__(current_y)
-        self._rock_positions = [(3, self._bottom_y), 
-                                (2, self._bottom_y + 1),
+        self._rock_positions = [(4, self._bottom_y), 
                                 (3, self._bottom_y + 1),
                                 (4, self._bottom_y + 1),
-                                (3, self._bottom_y + 2)]
+                                (5, self._bottom_y + 1),
+                                (4, self._bottom_y + 2)]
         
 
 class CornerRock(Rock):
@@ -99,11 +109,11 @@ class CornerRock(Rock):
         ###'''
     def __init__(self, current_y):
         super().__init__(current_y)
-        self._rock_positions = [(2, self._bottom_y), 
-                                (3, self._bottom_y),
+        self._rock_positions = [(3, self._bottom_y), 
                                 (4, self._bottom_y),
-                                (4, self._bottom_y +1),
-                                (4, self._bottom_y + 2)]
+                                (5, self._bottom_y),
+                                (5, self._bottom_y +1),
+                                (5, self._bottom_y + 2)]
         
 
 class VerticalRock(Rock):
@@ -113,7 +123,7 @@ class VerticalRock(Rock):
         # '''
     def __init__(self, current_y):
         super().__init__(current_y)
-        self._rock_positions = [(2,i) for i in range (self._bottom_y, self._bottom_y+4)]
+        self._rock_positions = [(3,i) for i in range (self._bottom_y, self._bottom_y+4)]
         
 
 class BoxRock(Rock):
@@ -121,8 +131,8 @@ class BoxRock(Rock):
         ##'''
     def __init__(self, current_y):
         super().__init__(current_y)
-        self._rock_positions = [(2, self._bottom_y), (3, self._bottom_y),
-                                (2, self._bottom_y+1), (3, self._bottom_y+1)]
+        self._rock_positions = [(3, self._bottom_y), (4, self._bottom_y),
+                                (3, self._bottom_y+1), (4, self._bottom_y+1)]
         
 
 class RockFactory():
@@ -148,6 +158,6 @@ class RockFactory():
                 this_rock = VerticalRock(current_y)
             case self.BOX:
                 this_rock = BoxRock(current_y)
-        logging.debug(f'Creating next rock: {type(this_rock)} number: {self._next_rock}')            
+        # logging.debug(f'Creating next rock: {type(this_rock)} number: {self._next_rock}')            
         self._next_rock = ((self._next_rock + 1) % 5)
         return this_rock

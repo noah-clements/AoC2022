@@ -26,15 +26,15 @@ def example2():
 # @pytest.mark.skip(reason="Not implemented")
 def test_part1_example1(example1):
     """Test part 1 on example input."""
-    result = aoc.part1(example1, 2022)
-    logging.debug(len(Rock._cavern))
-    # logging.debug(Rock._cavern)
+    result = aoc.collapse(example1, 2022)
+    # logging.debug(len(Rock._cavern))
+    logging.debug(Rock._cavern)
     assert result == 3068
 
 @pytest.mark.skip(reason="Not implemented")
 def test_part2_example1(example1):
     """Test part 2 on example input."""
-    assert aoc.part2(example1) == ...
+    assert aoc.collapse(example1, 1_000_000_000_000) == 1514285714288
 
 @pytest.mark.skip(reason="Not implemented")
 def test_part2_example2(example2):

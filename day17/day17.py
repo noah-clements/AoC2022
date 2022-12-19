@@ -23,14 +23,14 @@ logging.info('Start of program')
 
 
 @measure
-def part1(data, num_rocks):
+def collapse(data, num_rocks, jet_idx=0):
     """Solve part 1."""
     # cavern = {}
     rf = RockFactory()
     top_y = 0
     jet_length = len(data)
-    jet_idx = 0
-    for _ in range(num_rocks):
+    for i in range(num_rocks):
+        # logging.debug(f"Rock number: {i}")
         rock = rf.get_next_rock(top_y)
         still_falling = True
         while still_falling:
@@ -42,20 +42,42 @@ def part1(data, num_rocks):
             jet_idx += 1
             still_falling, top_y = rock.fall()
     # logging.debug(rock._cavern)
-    return top_y
+    return top_y, jet_idx
 
 @measure
-def part2(parsed_data):
-    """Solve part 2."""
+def pattern_collapse(data, num_rocks):
+    # last_mult_top_y = collapse(data, 5)
+    # possible_pattern = False
+    top_y = 0
+    jet_length = len(data)
+    lcm = jet_length if jet_length % 5 ==0 else jet_length * 5
+    jet_idx = 0
+    if num_rocks > lcm:
+        logging.debug(f'more than lcm pattern {lcm}')
+        top_y, jet_idx = collapse(data, lcm, jet_idx)
+        multiplier = num_rocks // lcm
+        top_y = multiplier * top_y
+        jet_idx *= multiplier + 1
+
+    remainder = num_rocks % lcm
+    next_y, _ = collapse(data, remainder, jet_idx)
+    top_y += next_y
+    
+    return top_y
+
+
 
 def solve(data):
     """Solve the puzzle for the given input."""
-    solution1 = part1(data, 2022)
-    solution2 = part2(data)
+    solution1, _ = collapse(data, 200_000)
+    logging.debug(f'instructions: {len(data)}. Last character: {data[-1]}')
+    Rock.reset_cavern()
+    solution2 = pattern_collapse(data, 200_000)
+    # solution2 = None
 
     return solution1, solution2
 
 if __name__ == "__main__":
     solutions = solve(data)
     print("\n".join(str(solution) for solution in solutions))
-    logging.debug(data)
+    # logging.debug(data)

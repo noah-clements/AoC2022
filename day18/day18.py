@@ -2,6 +2,7 @@ from aocd import data
 import logging
 from functools import wraps
 from time import time
+from operator import itemgetter
 
 def measure(func):
     @wraps(func)
@@ -57,7 +58,36 @@ def count_exposed_sides(cubes):
         count += len(sides)
     return count
 
-
+def find_interior_sides(cubes):
+    cubes_w_gaps = []
+    max_x = max(cubes, key=itemgetter(0))
+    min_x = min(cubes, key=itemgetter(0))
+    max_y = max(cubes, key=itemgetter(1))
+    min_y = min(cubes, key=itemgetter(1))
+    max_z = max(cubes, key=itemgetter(2))
+    min_z = min(cubes, key=itemgetter(2))
+    for cube in cubes:
+        x, y, z = cube
+        if ((x-1, y, z) not in cubes and
+            (x-2, y, z) in cubes):
+            cubes_w_gaps.append(cube)
+        elif ((x+1, y, z) not in cubes and
+              (x+2, y, z) in cubes):
+            cubes_w_gaps.append(cube)
+        elif ((x, y-1, z) not in cubes and
+              (x, y-2, z) in cubes):
+            cubes_w_gaps.append(cube)
+        elif ((x, y+1, z) not in cubes and
+              (x, y+2, z) in cubes):
+            cubes_w_gaps.append(cube)
+        elif ((x, y, z-1) not in cubes and
+              (x,y,z-2) in cubes):
+            cubes_w_gaps.append(cube)
+        elif ((x, y, z+1) not in cubes and
+              (x, y, z+2) in cubes):
+            cubes_w_gaps.append(cube)
+    logging.debug(cubes_w_gaps)
+    return cubes_w_gaps
 
 @measure
 def part1(cubes):
@@ -68,7 +98,7 @@ def part1(cubes):
 @measure
 def part2(cubes):
     """Solve part 2."""
-    return count_exposed_sides(cubes)
+    return count_exposed_sides(cubes) - len(find_interior_sides(cubes))
 
 def solve(data):
     """Solve the puzzle for the given input."""

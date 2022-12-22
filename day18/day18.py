@@ -60,12 +60,6 @@ def count_exposed_sides(cubes):
 
 def find_interior_sides(cubes):
     cubes_w_gaps = []
-    max_x = max(cubes, key=itemgetter(0))
-    min_x = min(cubes, key=itemgetter(0))
-    max_y = max(cubes, key=itemgetter(1))
-    min_y = min(cubes, key=itemgetter(1))
-    max_z = max(cubes, key=itemgetter(2))
-    min_z = min(cubes, key=itemgetter(2))
     for cube in cubes:
         x, y, z = cube
         if ((x-1, y, z) not in cubes and

@@ -1,11 +1,13 @@
-from abc import ABC
+import abc
 import logging
+import operator
+from array import array
 
 logging.basicConfig(filename='aoc.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.disable(logging.CRITICAL)
 
-class Rock(ABC):
+class Rock(abc.ABC):
     RWALL_X=8
     LWALL_X=0
     MIN_Y=0
@@ -39,11 +41,6 @@ class Rock(ABC):
             # Have to do this after the tests above and after top_y calc.
             for position in self._rock_positions:
                 self._cavern[position] = 'r'
-        # logging.debug(f'Fell. {type(self)}. {self._rock_positions}')
-        # logging.debug(f'Still falling? {room_to_fall}')
-        # if not room_to_fall:
-        #     logging.debug(self._cavern)
-        #     logging.debug(f'Top _y: {top_y}')
         return room_to_fall, top_y            
 
     def move_left(self):
@@ -59,7 +56,6 @@ class Rock(ABC):
                 replacement_positions.append(test_pos)
         if more_room:
             self._rock_positions = replacement_positions
-        # logging.debug(f'Moved Left(?) {type(self)}. {self._rock_positions}')
 
 
     def move_right(self):
@@ -75,12 +71,22 @@ class Rock(ABC):
                 replacement_positions.append(test_pos)
         if more_room:
             self._rock_positions = replacement_positions
-        # logging.debug(f'Moved Right(?) {type(self)}. {self._rock_positions}')
 
     @classmethod
     def reset_cavern(cls):
         cls._cavern = {}
-        
+
+    @classmethod
+    def get_top_level(cls):
+        # top_ys = [max(y) for x, y in cls._cavern.keys()]
+        top_y = max(cls._cavern.keys(), key=operator.itemgetter(1))[1]
+        top_ys = array('b',[max([ky if kx == x else 0 for kx, ky in cls._cavern.keys()]) - top_y for x in range(cls.LWALL_X + 1, cls.RWALL_X)])
+        # top_ys = list(cls._cavern.keys())[-20:]
+        return top_ys
+
+    @abc.abstractmethod
+    def get_rock_index(self):
+        '''Need the rock index for state'''
 
 
 class HorizontalRock(Rock):
@@ -88,7 +94,9 @@ class HorizontalRock(Rock):
     def __init__(self, current_y):
         super().__init__(current_y)
         self._rock_positions = [(i, self._bottom_y) for i in range(3,7)]
-        
+
+    def get_rock_index(self):
+        return 0
 
 class CrossRock(Rock):
     ''' .#.
@@ -101,6 +109,9 @@ class CrossRock(Rock):
                                 (4, self._bottom_y + 1),
                                 (5, self._bottom_y + 1),
                                 (4, self._bottom_y + 2)]
+
+    def get_rock_index(self):
+        return 1
         
 
 class CornerRock(Rock):
@@ -115,6 +126,8 @@ class CornerRock(Rock):
                                 (5, self._bottom_y +1),
                                 (5, self._bottom_y + 2)]
         
+    def get_rock_index(self):
+        return 2
 
 class VerticalRock(Rock):
     ''' #
@@ -125,6 +138,8 @@ class VerticalRock(Rock):
         super().__init__(current_y)
         self._rock_positions = [(3,i) for i in range (self._bottom_y, self._bottom_y+4)]
         
+    def get_rock_index(self):
+        return 3
 
 class BoxRock(Rock):
     ''' ##
@@ -134,6 +149,8 @@ class BoxRock(Rock):
         self._rock_positions = [(3, self._bottom_y), (4, self._bottom_y),
                                 (3, self._bottom_y+1), (4, self._bottom_y+1)]
         
+    def get_rock_index(self):
+        return 4
 
 class RockFactory():
     HORIZONTAL = 0
@@ -158,6 +175,5 @@ class RockFactory():
                 this_rock = VerticalRock(current_y)
             case self.BOX:
                 this_rock = BoxRock(current_y)
-        # logging.debug(f'Creating next rock: {type(this_rock)} number: {self._next_rock}')            
         self._next_rock = ((self._next_rock + 1) % 5)
         return this_rock
